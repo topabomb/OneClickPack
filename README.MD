@@ -4,25 +4,25 @@ English\|简体中文
 
 ## 目录
 
-[Weero-OneclickPack](#_Toc97722997)
+[Weero-OneclickPack](#_Toc97723182)
 
 [目录](#目录)
 
-[说明](#_Toc97722999)
+[说明](#_Toc97723184)
 
-[目录结构](#_Toc97723000)
+[目录结构](#_Toc97723185)
 
-[制作软件包](#_Toc97723001)
+[制作软件包](#_Toc97723186)
 
 [Electron客户端](#electron客户端)
 
-[Crossbar中间件](#_Toc97723003)
+[Crossbar中间件](#_Toc97723188)
 
-[Python Daemon](#_Toc97723004)
+[Python Daemon](#_Toc97723189)
 
-[从源码编译](#_Toc97723005)
+[从源码编译](#_Toc97723190)
 
-[发行包](#_Toc97723006)
+[发行包](#_Toc97723191)
 
 ## 说明
 
@@ -63,6 +63,8 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 ![主界面](media/e279b91bed55e0776d3ca2087a6cd36a.png)
 
 ![日志查看器](media/e4d0acd1668a9ee7894f8bf581e6e3a5.png) ![服务管理器](media/a472388c0b1b4ee968638a3ad073ffa4.png) ![通过菜单管理服务](media/cccc64a8f7b4ad51eb9355f64e8bf49e.png)
+
+可直接下载体验集成了rabbitmq的演示版：<https://github.com/topabomb/OneClickPack/releases/tag/v0.0.1_preview>
 
 ## 目录结构
 
@@ -118,14 +120,14 @@ service.json 软件包配置说明
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ json
 {
-    "name": "rabbitmq-package",
-    "description": "rabbitmq",
-    "version": "1.0.0",
-    "autoruns": [
+    "name": "rabbitmq-package",//软件包名称，需全局唯一
+    "description": "rabbitmq",//软件包描述
+    "version": "1.0.0",//当前版本
+    "autoruns": [//配置需要自启动的服务数组，引用服务名称参见components中的名称
         "mqtt_webtoolkit"
     ],
-    "requires": null,
-    "urls": [
+    "requires": null,//依赖其他的软件包数组，引用软件包名称参见对应的service.json中的配置
+    "urls": [//软件包需要展示的url数组
     ],
     "kwargs":{
         "fix_stop":"taskkill"
