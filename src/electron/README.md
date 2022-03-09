@@ -1,6 +1,6 @@
-# Onekey client web (onekey_cli_web)
+# Weero-OneclickPack
 
-A Quasar Framework app
+Weero-OneclickPack
 
 ## Install the dependencies
 ```bash
@@ -10,6 +10,8 @@ npm install
 ### Start the app in development mode (hot-code reloading, error reporting, etc.)
 ```bash
 quasar dev
+or
+npm run electron
 ```
 
 ### Lint the files
@@ -20,6 +22,8 @@ npm run lint
 ### Build the app for production
 ```bash
 quasar build
+or
+npm run build
 ```
 
 ### Customize the configuration
