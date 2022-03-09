@@ -1,0 +1,13 @@
+主要组件
+    electron客户端
+    electron内嵌网站
+    redis服务
+    crossbar服务
+    rest_api
+    cross_api
+
+crossbar协议
+    core.sevice.out
+        用于electron启动的服务的控制台输出
+    core.console.out
+        用于electron自己的控制台输出

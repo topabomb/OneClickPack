@@ -4,23 +4,25 @@ English\|简体中文
 
 ## 目录
 
-[Weero-OneclickPack](#_Toc97722836)
+[Weero-OneclickPack](#_Toc97722997)
 
-[说明](#_Toc97722837)
+[目录](#目录)
 
-[目录结构](#_Toc97722838)
+[说明](#_Toc97722999)
 
-[制作软件包](#_Toc97722839)
+[目录结构](#_Toc97723000)
+
+[制作软件包](#_Toc97723001)
 
 [Electron客户端](#electron客户端)
 
-[Crossbar中间件](#_Toc97722841)
+[Crossbar中间件](#_Toc97723003)
 
-[Python Daemon](#_Toc97722842)
+[Python Daemon](#_Toc97723004)
 
-[从源码编译](#_Toc97722843)
+[从源码编译](#_Toc97723005)
 
-[发行包](#_Toc97722844)
+[发行包](#_Toc97723006)
 
 ## 说明
 

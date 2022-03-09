@@ -8,3 +8,7 @@ dist/f/.crossbar/node.pid
 dist/ui/*
 !dist/datas/_c/*
 dist/datas/
+*.vscode
+*.pyc
+Releases/*
+src/electron/node_modules
