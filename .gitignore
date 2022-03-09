@@ -1,0 +1,10 @@
+~$*
+dist/c/jdk/*
+dist/c/python/*
+dist/c/erl/*
+dist/c/redis/*
+dist/s/*
+dist/f/.crossbar/node.pid
+dist/ui/*
+!dist/datas/_c/*
+dist/datas/

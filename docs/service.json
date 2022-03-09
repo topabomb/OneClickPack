@@ -1,0 +1,60 @@
+{
+    "name": "rabbitmq-package",//软件包名称，需全局唯一
+    "description": "rabbitmq",//软件包描述
+    "version": "1.0.0",//当前版本
+    "autoruns": [//配置需要自启动的服务数组，引用服务名称参见components中的名称
+        "mqtt_webtoolkit"
+    ],
+    "requires": null,//依赖其他的软件包数组，引用软件包名称参见对应的service.json中的配置
+    "urls": [//软件包需要展示的url数组
+    ],
+    "kwargs":{
+        "fix_stop":"taskkill"
+    },
+    "components": [
+        {
+            "name": "rabbitmq",
+            "requires": null,
+            "cwd": "./rabbitmq_server/",
+            "bind_cwd": true,
+            "start": "sbin\\rabbitmq-server.bat",
+            "stop": null,
+            "ready_pattern": "^.*Starting broker... completed .*",
+            "check_point_pattern": null,
+            "core_erl": true,
+            "envs": {
+                "RABBITMQ_MNESIA_BASE":"../../../datas/RabbitMQ/db",
+                "RABBITMQ_LOG_BASE":"../../../datas/RabbitMQ/log",
+                "RABBITMQ_ENABLED_PLUGINS_FILE":"../enabled_plugins",
+                "RABBITMQ_CONFIG_FILE":"../rabbitmq.conf",
+                "ERL_MAX_PORTS":"65535"
+            },
+            "urls": [
+                {
+                    "title": "rabbitmq management",
+                    "url": "http://localhost:15672/"
+                }
+            ],
+            "description": "rabbitmq；"
+        },
+        {
+            "name": "mqtt_webtoolkit",
+            "requires": ["rabbitmq"],
+            "cwd": "./web-toolkit/",
+            "bind_cwd": false,
+            "start": "../../../c/python/python.exe -u -m http.server 18099 --directory ./",
+            "stop": null,
+            "ready_pattern": "^.*Serving HTTP on.*",
+            "check_point_pattern": null,
+            "envs": {
+            },
+            "urls": [
+                {
+                    "title": "mqtt web toolkit",
+                    "url": "http://localhost:18099/"
+                }
+            ],
+            "description": "mqtt web toolkit"
+        }
+    ]
+}
