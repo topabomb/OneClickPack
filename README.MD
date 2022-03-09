@@ -1,8 +1,8 @@
-## Weero-OneclickPack
+# Weero-OneclickPack
 
 English\|简体中文
 
-### 说明
+## 说明
 
 OneclickPack是集成了python java erlang node等语言引擎的一款软件包分发工具；试想一下如下场景：
 
@@ -38,11 +38,11 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 
 如下是包含了大量软件包的运行截图
 
-![图形用户界面, 文本, 应用程序, 电子邮件 描述已自动生成](media/e89f577e061b4da74f4509c681ddfadf.png)
+![主界面](media/e279b91bed55e0776d3ca2087a6cd36a.png)
 
-![图形用户界面, 文本, 应用程序 描述已自动生成](media/e4d0acd1668a9ee7894f8bf581e6e3a5.png) ![图形用户界面, 文本, 应用程序, 电子邮件 描述已自动生成](media/a472388c0b1b4ee968638a3ad073ffa4.png) ![图形用户界面, 文本, 应用程序 描述已自动生成](media/cccc64a8f7b4ad51eb9355f64e8bf49e.png)
+![日志查看器](media/e4d0acd1668a9ee7894f8bf581e6e3a5.png) ![服务管理器](media/a472388c0b1b4ee968638a3ad073ffa4.png) ![通过菜单管理服务](media/cccc64a8f7b4ad51eb9355f64e8bf49e.png)
 
-### 目录结构
+## 目录结构
 
 软件依赖于静态的目录结构如下：
 
@@ -50,8 +50,8 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 +c				关键依赖项/core服务主目录
 ---erl				erlang环境（可移除）
 ---jdk				java环境（可移除）
----python				python环境，安装了crossbar及其他的依赖包
----redis				redis中间件，用于Onclick Pack的临时数据存储
+---python				python环境及Daemon，安装了crossbar及其他的依赖包
+---redis				redis中间件（可移除），用于Onclick Pack的临时数据存储
 +datas			数据主目录
 ---_c					关键依赖项的持久化数据
 ---[…]				软件包的持久化数据（非必须）
@@ -63,7 +63,7 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 ---[…]				软件包的日志输入（非必须）
 +py				core服务主目录（python语言）
 ---crossbar_api			crossbar的rpc、pubsub的处理程序、进程管理器
----rest_api				用于演示http restful api的站点
+---rest_api				用于演示http restful api的站点，可移除
 ---[…]				客制化程序
 +s				软件包主目录
 ---[…]				客制化软件包（非必须）
@@ -79,14 +79,90 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 
 -   Erlang otp_win64_24.2.1
 
-### 制作软件包
+## 制作软件包
 
-### Electron客户端
+制作完成的软件包统一放在软件包主目录(/s)下，如rabbitmq包应为如下目录结构：
 
-### Crossbar中间件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++s				软件包主目录
+---+rabbitmq_pack		客制化包-rabbitmq，目录名在本级唯一但可以自定义
+------service.json	软件包的配置文件
+------[…]			软件包的其他内容
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-### Python Daemon
+![rabbitmq 软件包的演示](media/79c1ba874b62c49fed5934ea73678bfd.png)
 
-### 从源码编译
+service.json 软件包配置说明
 
-### 发行包
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ json
+{
+    "name": "rabbitmq-package",
+    "description": "rabbitmq",
+    "version": "1.0.0",
+    "autoruns": [
+        "mqtt_webtoolkit"
+    ],
+    "requires": null,
+    "urls": [
+    ],
+    "kwargs":{
+        "fix_stop":"taskkill"
+    },
+    "components": [
+        {
+            "name": "rabbitmq",
+            "requires": null,
+            "cwd": "./rabbitmq_server/",
+            "bind_cwd": true,
+            "start": "sbin\\rabbitmq-server.bat",
+            "stop": null,
+            "ready_pattern": "^.*Starting broker... completed .*",
+            "check_point_pattern": null,
+            "core_erl": true,
+            "envs": {
+                "RABBITMQ_MNESIA_BASE":"../../../datas/RabbitMQ/db",
+                "RABBITMQ_LOG_BASE":"../../../datas/RabbitMQ/log",
+                "RABBITMQ_ENABLED_PLUGINS_FILE":"../enabled_plugins",
+                "RABBITMQ_CONFIG_FILE":"../rabbitmq.conf",
+                "ERL_MAX_PORTS":"65535"
+            },
+            "urls": [
+                {
+                    "title": "rabbitmq management",
+                    "url": "http://localhost:15672/"
+                }
+            ],
+            "description": "rabbitmq；"
+        },
+        {
+            "name": "mqtt_webtoolkit",
+            "requires": ["rabbitmq"],
+            "cwd": "./web-toolkit/",
+            "bind_cwd": false,
+            "start": "../../../c/python/python.exe -u -m http.server 18099 --directory ./",
+            "stop": null,
+            "ready_pattern": "^.*Serving HTTP on.*",
+            "check_point_pattern": null,
+            "envs": {
+            },
+            "urls": [
+                {
+                    "title": "mqtt web toolkit",
+                    "url": "http://localhost:18099/"
+                }
+            ],
+            "description": "mqtt web toolkit"
+        }
+    ]
+}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Electron客户端
+
+## Crossbar中间件
+
+## Python Daemon
+
+## 从源码编译
+
+## 发行包
