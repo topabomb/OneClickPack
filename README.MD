@@ -2,6 +2,26 @@
 
 English\|简体中文
 
+## 目录
+
+[Weero-OneclickPack](#_Toc97722836)
+
+[说明](#_Toc97722837)
+
+[目录结构](#_Toc97722838)
+
+[制作软件包](#_Toc97722839)
+
+[Electron客户端](#electron客户端)
+
+[Crossbar中间件](#_Toc97722841)
+
+[Python Daemon](#_Toc97722842)
+
+[从源码编译](#_Toc97722843)
+
+[发行包](#_Toc97722844)
+
 ## 说明
 
 OneclickPack是集成了python java erlang node等语言引擎的一款软件包分发工具；试想一下如下场景：
