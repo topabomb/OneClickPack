@@ -11,4 +11,3 @@ dist/datas/
 *.vscode
 *.pyc
 Releases/*
-src/electron/node_modules

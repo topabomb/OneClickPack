@@ -1,4 +1,12 @@
 import { app, BrowserWindow, dialog, nativeTheme, shell, Notification } from 'electron'
+import path from 'path'
+// 解析命令行参数
+const optionDefinitions = [
+  { name: 'root', alias: 'r', multiple: true, type: String, defaultValue: null, defaultOption: true }
+]
+import commandLineArgs from 'command-line-args'
+const options = commandLineArgs(optionDefinitions)
+console.log(options, process.argv)
 // 全局的消息中心
 import msgBus from './messageBus'
 import './messageProc'
@@ -95,6 +103,11 @@ if (!gotTheLock) {
     }
   })
   app.on('ready', () => {
+    // 从命令行获取指定的主目录
+    const arg0 = options.root.length > 0 ? options.root[options.root.length - 1] : null
+    const root_dir = arg0 ? path.resolve(path.join(__statics, '../..', arg0)) : path.resolve(path.join(__statics, '../../..'))
+    console.log(`__statics:${__statics},arg0:${arg0},root_dir:${root_dir}`)
+    msgBus.cfg.root_dir = root_dir
     const cb = () => {
       msgBus.app.emit('service_start')
     }

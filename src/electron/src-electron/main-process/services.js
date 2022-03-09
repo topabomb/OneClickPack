@@ -48,7 +48,7 @@ const start_command = (name, cmd, cwd, is_spawn, args) => {
   }
   console.log('start_command[' + name + ']: ' + cmd + ' in: ' + cwd)
   const cmdStr = cmd// 要执行的命令
-  const cwdPath = path.join(__statics, '../..' + ((cwd.startsWith('/')) ? cwd : '/' + cwd))// 启动路径
+  const cwdPath = path.join(msgBus.cfg.root_dir, ((cwd.startsWith('/')) ? cwd : '/' + cwd))// 启动路径
   console.log('准备执行', cmdStr, args, cwdPath)
   runCmd(cmdStr, cwdPath)
 }
@@ -112,20 +112,22 @@ const services = {
   app_start: async() => {
     console.log('services.app_start')
     // erl.ini的额外处理
-    const erlBase = path.resolve(path.join(__statics, '../..', '../c/erl/'))
-    var iniContent = `[erlang]\r\nBindir=${erlBase}\\erts-12.2.1\\bin\r\nProgname=erl\r\nRootdir=${erlBase}`
-    iniContent = iniContent.replace(/\\/g, '\\\\')
-    fs.writeFileSync(`${erlBase}\\bin\\erl.ini`, iniContent)
+    const erlBase = path.resolve(path.join(msgBus.cfg.root_dir, 'c/erl/'))
+    if (fs.existsSync(erlBase)) {
+      var iniContent = `[erlang]\r\nBindir=${erlBase}\\erts-12.2.1\\bin\r\nProgname=erl\r\nRootdir=${erlBase}`
+      iniContent = iniContent.replace(/\\/g, '\\\\')
+      fs.writeFileSync(`${erlBase}\\bin\\erl.ini`, iniContent)
+    }
     // 启动crossbar
-    start_command('app__crossbar', 'c\\python\\python.exe', '../', true, ['c\\python\\Scripts\\crossbar.exe', 'start', '--cbdir', 'f\\.crossbar'])
+    start_command('app__crossbar', 'c\\python\\python.exe', './', true, ['c\\python\\Scripts\\crossbar.exe', 'start', '--cbdir', 'f\\.crossbar'])
     // 启动redis
-    start_command('app__redis', 'c\\redis\\redis-server.exe', '../', true, ['f\\redis.conf'])
+    start_command('app__redis', 'c\\redis\\redis-server.exe', './', true, ['f\\redis.conf'])
     // 测试进程
     // start_command('app_test', 'c\\python\\python.exe', '../', true, ['py\\loop.py'])
     // 启用 redis连接
     rds_connect('localhost', 16379, (conn) => {
     // 启动rest_api
-      start_command('app__rest_api', '..\\c\\python\\python.exe', '../py/', true, ['-m', 'uvicorn', '--port=9002', 'rest_api.main:app'])
+      start_command('app__rest_api', '..\\c\\python\\python.exe', './py/', true, ['-m', 'uvicorn', '--port=9002', 'rest_api.main:app'])
     })
     // 启用 crossbar连接
     return new Promise((resolve, reject) => {
@@ -140,7 +142,7 @@ const services = {
         }
         session.register('sys.electron.openpath', openPath)
         // 启动crossbar_api
-        start_command('app__crossbar_api', '..\\c\\python\\python.exe', '../py/', true, ['crossbar_api\\main.py', '../../s'])
+        start_command('app__crossbar_api', '..\\c\\python\\python.exe', './py/', true, ['crossbar_api\\main.py', path.join(msgBus.cfg.root_dir, './s')])
         // 等待crossbar_api启动完成
         const cb = () => {
           if (instances['app__crossbar_api']._closed === false) resolve(true) && console.log('app__crossbar_api started!')
@@ -169,7 +171,7 @@ const services = {
         }
         if (exit_num === Object.getOwnPropertyNames(instances).length) {
           // 退出crossbar之后，需要清理配置文件目录下的node.pid 文件，crossbar被kill时不会清理该文件，启动后会根据该文件中的pid展开逻辑，可能该pid被其他进程占用，导致无权限操作
-          const pid_file = path.resolve(path.join(__statics, '../..', '../f/.crossbar/node.pid'))
+          const pid_file = path.resolve(path.join(msgBus.cfg.root_dir, 'f/.crossbar/node.pid'))
           if (fs.existsSync(pid_file)) {
             fs.unlinkSync(pid_file)
             console.log('delete pid file is ' + pid_file)
