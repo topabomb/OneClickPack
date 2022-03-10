@@ -35,13 +35,13 @@ const start_command = (name, cmd, cwd, is_spawn, args) => {
     const worker = !is_spawn ? child_process.exec(cmd, { cwd: cwd, encoding: 'GBK' }) : child_process.spawn(cmd, args, { cwd: cwd, encoding: 'GBK' })
     worker._closed = false
     instances[name] = worker
-    worker.stdout.on('data', function(data) {
+    worker.stdout.on('data', function (data) {
       out_message(name + ' out: ' + iconv.decode(data, 'GBK'))
     })
-    worker.stderr.on('data', function(data) {
+    worker.stderr.on('data', function (data) {
       out_message(name + ' err: ' + iconv.decode(data, 'GBK'))
     })
-    worker.on('close', function(code) {
+    worker.on('close', function (code) {
       out_message(name + ' exit code：' + code)
       worker._closed = true
     })
@@ -55,19 +55,19 @@ const start_command = (name, cmd, cwd, is_spawn, args) => {
 const rds_connect = (host, port, cb_connected) => {
   // redis连接
   rds_client = redis.createClient(port, host)
-  rds_client.on('ready', function() {
+  rds_client.on('ready', function () {
     rds_ready = true
     out_message('onekey_client redis connect ready!')
     if (cb_connected) cb_connected(rds_client)
   })
-  rds_client.on('end', function(e) {
+  rds_client.on('end', function (e) {
     out_message('onekey_client redis  onend!')
     rds_ready = false
   })
-  rds_client.on('error', function(err) {
+  rds_client.on('error', function (err) {
     out_message('onekey_client redis connect error:' + err)
   })
-  rds_client.on('connect', function() {
+  rds_client.on('connect', function () {
     out_message('onekey_client redis connect success!')
   })
 }
@@ -81,7 +81,7 @@ const cb_connect = (url, ns, cb_connected) => {
     out_message('crossbar opened!url:[' + url + '] realm:[' + ns + ']')
     if (cb_connected) cb_connected(session)
   }
-  cb_connection.onclose = function(reason, details) {
+  cb_connection.onclose = function (reason, details) {
     cb_ready = false
     out_message('crossbar closed!')
   }
@@ -109,7 +109,7 @@ const out_message = (msg) => {
   }
 }
 const services = {
-  app_start: async() => {
+  app_start: async () => {
     console.log('services.app_start')
     // erl.ini的额外处理
     const erlBase = path.resolve(path.join(msgBus.cfg.root_dir, 'c/erl/'))
@@ -120,15 +120,19 @@ const services = {
     }
     // 启动crossbar
     start_command('app__crossbar', 'c\\python\\python.exe', './', true, ['c\\python\\Scripts\\crossbar.exe', 'start', '--cbdir', 'f\\.crossbar'])
-    // 启动redis
-    start_command('app__redis', 'c\\redis\\redis-server.exe', './', true, ['f\\redis.conf'])
-    // 测试进程
-    // start_command('app_test', 'c\\python\\python.exe', '../', true, ['py\\loop.py'])
-    // 启用 redis连接
-    rds_connect('localhost', 16379, (conn) => {
-    // 启动rest_api
-      start_command('app__rest_api', '..\\c\\python\\python.exe', './py/', true, ['-m', 'uvicorn', '--port=9002', 'rest_api.main:app'])
-    })
+
+    if (msgBus.cfg.options && msgBus.cfg.options.redis) {
+      // 启动redis
+      start_command('app__redis', 'c\\redis\\redis-server.exe', './', true, ['f\\redis.conf'])
+      // 测试进程
+      // start_command('app_test', 'c\\python\\python.exe', '../', true, ['py\\loop.py'])
+      // 启用 redis连接
+      rds_connect('localhost', 16379, (conn) => {
+        // 启动rest_api
+        if (msgBus.cfg.options && msgBus.cfg.options.restapi) start_command('app__rest_api', '..\\c\\python\\python.exe', './py/', true, ['-m', 'uvicorn', '--port=9002', 'rest_api.main:app'])
+      })
+    }
+
     // 启用 crossbar连接
     return new Promise((resolve, reject) => {
       cb_connect('ws://localhost:8081/ws', 'realm1', (session) => {
@@ -152,10 +156,10 @@ const services = {
       })
     })
   },
-  app_stop: async() => {
+  app_stop: async () => {
     console.log('services.app_stop')
 
-    rds_client.quit()
+    rds_client&&rds_client.quit()
     cb_connection.close()
     const rev_arr = Object.keys(instances).reverse()
     rev_arr.forEach((key) => {
@@ -182,7 +186,7 @@ const services = {
       setTimeout(cb, 500)
     })
   },
-  service_stopall: async() => {
+  service_stopall: async () => {
     console.log('services.service_stopall')
 
     if (cb_session) {
@@ -194,7 +198,7 @@ const services = {
     }
     return new Promise((resolve, reject) => {
       const cb = () => {
-        cb_session.call('sys.ServiceControl.getServiceStatus').then(async(resp) => {
+        cb_session.call('sys.ServiceControl.getServiceStatus').then(async (resp) => {
           // console.log('sys.ServiceControl.getServiceStatus result:',resp)
           let running_count = 0
           resp.forEach(s => {
@@ -204,7 +208,7 @@ const services = {
           if (running_count <= 0) {
             resolve(true)
           } else setTimeout(cb, 200)
-        }, async(err) => {
+        }, async (err) => {
           console.error('sys.ServiceControl.getServiceStatus error:', err)
           reject(err)
         })

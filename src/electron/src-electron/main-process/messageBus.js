@@ -5,7 +5,8 @@ const msgBus = {
   app: new events.EventEmitter(), // 全局
   service: new events.EventEmitter(), // 服务类
   cfg: {
-    root_dir: null
+    root_dir: null,
+    options: null,
   }
 }
 export default msgBus

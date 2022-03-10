@@ -4,25 +4,33 @@ English\|简体中文
 
 ## 目录
 
-[Weero-OneclickPack](#_Toc97723182)
+[Weero-OneclickPack](#_Toc97799886)
 
 [目录](#目录)
 
-[说明](#_Toc97723184)
+[说明](#_Toc97799888)
 
-[目录结构](#_Toc97723185)
+[目录结构](#_Toc97799889)
 
-[制作软件包](#_Toc97723186)
+[制作软件包](#_Toc97799890)
 
 [Electron客户端](#electron客户端)
 
-[Crossbar中间件](#_Toc97723188)
+[Crossbar中间件](#_Toc97799892)
 
-[Python Daemon](#_Toc97723189)
+[Python Daemon](#_Toc97799893)
 
-[从源码编译](#_Toc97723190)
+[从源码编译](#_Toc97799894)
 
-[发行包](#_Toc97723191)
+[发行包](#_Toc97799895)
+
+[FAQ](#faq)
+
+[裁剪分发包的体积：](#裁剪分发包的体积)
+
+[在软件包中启动一个网站服务：](#在软件包中启动一个网站服务)
+
+[Python代码无法捕获stdout：](#python代码无法捕获stdout)
 
 ## 说明
 
@@ -167,7 +175,7 @@ service.json 软件包配置说明
             ],
             "description": "RabbitMQ是实现了高级消息队列协议（AMQP）的开源消息代理软件（亦称面向消息的中间件）。本服务开启了web_mqtt与management插件；" //服务描述
         },
-        {
+        {//演示简化版的配置
             "name": "mqtt_webtoolkit",
             "requires": [
                 "rabbitmq"
@@ -189,6 +197,24 @@ service.json 软件包配置说明
 
 ## Electron客户端
 
+src/electron包含了GUI程序的源码，程序框架及工具链采用Quasar，主要逻辑如下：
+
+1.  解析命令行参数，初始化程序配置
+
+2.  根据启动目录修改核心依赖的文件，例如erl.ini
+
+3.  启动crossbar中间件（已将crossbar集成到python环境）
+
+4.  启动redis中间件（可通过命令行—redis=false关闭）
+
+5.  启动restApi（可通过命令行—restapi=false关闭）
+
+6.  启动PythonDaemon(crossbarApi)
+
+7.  渲染主界面
+
+8.  渲染引擎启动各关键服务
+
 ## Crossbar中间件
 
 ## Python Daemon
@@ -196,3 +222,29 @@ service.json 软件包配置说明
 ## 从源码编译
 
 ## 发行包
+
+## FAQ
+
+### 裁剪分发包的体积：
+
+-   如果分发的软件包不依赖java环境，可删除\\c\\jdk目录，可节省161m空间；
+
+-   如果分发的软件包不依赖erlang环境，可删除\\c\\erl目录，可节省302m空间；
+
+-   如果不依赖redis环境，可删除\\c\\redis目录，同时通过命令行参数要关闭redis与restapi；
+
+-   清理\\c\\datas 与\\c\\logs目录
+
+-   可以通过\\c\\python\\python.exe -m pip 清理不需要的包（请小心操作，crossbar、autobahn及其相关的依赖一定不要删除）
+
+-   压缩并重新打包python环境。（压缩打包site-packages，注意python38._pth的修改）
+
+### 在软件包中启动一个网站服务：
+
+Python环境自带一个简单的web服务器，参考如下命令
+
+c/python/python.exe -u -m http.server 18099 --directory ./
+
+### Python代码无法捕获stdout：
+
+Python的pring及loggin包的stdout输出默认采用了Buffer机制，过于少量的输入会积压在内存中不会刷新到管道，使用python -u 参数禁止Buffer机制。

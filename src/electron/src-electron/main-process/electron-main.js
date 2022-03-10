@@ -2,11 +2,11 @@ import { app, BrowserWindow, dialog, nativeTheme, shell, Notification } from 'el
 import path from 'path'
 // 解析命令行参数
 const optionDefinitions = [
-  { name: 'root', alias: 'r', multiple: true, type: String, defaultValue: null, defaultOption: true }
+  { name: 'root',  multiple: true, type: String, defaultValue: null, defaultOption: true },
 ]
-import commandLineArgs from 'command-line-args'
-const options = commandLineArgs(optionDefinitions)
-console.log(options, process.argv)
+import commandLineArgs from 'command-line-args'//用command-line-args解析默认参数root，其他参数使用app.commandLine.getSwitchValue获取，注意在quasar环境中读不到
+const options = commandLineArgs(optionDefinitions,{ stopAtFirstUnknown: true })
+console.log('options&argv:',options, process.argv)
 // 全局的消息中心
 import msgBus from './messageBus'
 import './messageProc'
@@ -108,6 +108,10 @@ if (!gotTheLock) {
     const root_dir = arg0 ? path.resolve(path.join(__statics, '../..', arg0)) : path.resolve(path.join(__statics, '../../..'))
     console.log(`__statics:${__statics},arg0:${arg0},root_dir:${root_dir}`)
     msgBus.cfg.root_dir = root_dir
+    msgBus.cfg.options={
+      redis:app.commandLine.getSwitchValue("redis")==='false'?false:true,
+      restapi:app.commandLine.getSwitchValue("restapi")==='false'?false:true,
+    }
     const cb = () => {
       msgBus.app.emit('service_start')
     }
