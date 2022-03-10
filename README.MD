@@ -4,25 +4,25 @@ English\|简体中文
 
 ## 目录
 
-[Weero-OneclickPack](#_Toc97799886)
+[Weero-OneclickPack](#_Toc97822529)
 
 [目录](#目录)
 
-[说明](#_Toc97799888)
+[说明](#_Toc97822531)
 
-[目录结构](#_Toc97799889)
+[目录结构](#_Toc97822532)
 
-[制作软件包](#_Toc97799890)
+[制作软件包](#_Toc97822533)
 
 [Electron客户端](#electron客户端)
 
-[Crossbar中间件](#_Toc97799892)
+[Crossbar中间件](#_Toc97822535)
 
-[Python Daemon](#_Toc97799893)
+[Python Daemon守护进程](#_Toc97822536)
 
-[从源码编译](#_Toc97799894)
+[从源码编译](#_Toc97822537)
 
-[发行包](#_Toc97799895)
+[软件包](#_Toc97822538)
 
 [FAQ](#faq)
 
@@ -63,6 +63,8 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 -   Rabbitmq（整合wqtt web toolkit）
 
 -   Elasticsearch（整合kibana）
+
+-   PostgresSql
 
 -   陆续更新…
 
@@ -197,7 +199,7 @@ service.json 软件包配置说明
 
 ## Electron客户端
 
-src/electron包含了GUI程序的源码，程序框架及工具链采用Quasar，主要逻辑如下：
+[src/electron](docs/src/electron)包含了GUI程序的源码，程序框架及工具链采用Quasar，主要逻辑如下：
 
 1.  解析命令行参数，初始化程序配置
 
@@ -217,11 +219,48 @@ src/electron包含了GUI程序的源码，程序框架及工具链采用Quasar�
 
 ## Crossbar中间件
 
-## Python Daemon
+Crossbar.io 是一个用于分布式和微服务应用程序的开源网络平台。它实现了开放的 Web 应用程序消息传递协议 (WAMP)，功能丰富、可扩展、健壮且安全。
+
+本例中用作消息中间件，gui启动时将自动启动该服务，服务配置在/f/.crossbar中。
+
+注册的RPC清单参见/dist/py/crossbar_api/rpc_sets中的代码
+
+使用的Pub/Sub频道：
+
+-   core.sevice.print：子服务的日志输出（python daemon publish）
+
+-   core.sevice.status：子服务的状态输出（python daemon publish）
+
+-   core.console.out：core服务的日志输出（electron gui publish）
+
+## Python Daemon守护进程
+
+Python语言的守护进程，用于子服务的进程管理，公布了crossbar的RPC方法用于gui进行控制。
+
+为什么笔者不直接用node而要另外撰写python的代码，其实是笔者自身的原因，强迫自己在项目中使用多种开发语言，这样有助于碰到某个语言环境不能或很难完成工作时，还是可以快速的通过其他语言环境完成需求。（比如有需要cuda开发，如果只熟悉node的话该怎么实现/2021年的实际场景）
+
+源码参见/dist/py/crossbar_api/
 
 ## 从源码编译
 
-## 发行包
+Electron项目主目录/scr/electron，编译完成后windows的未打包版本在/src/electron/dist/electron/Packaged/win-unpacked 下
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+npm install
+npm run build
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## 软件包
+
+-   RabbitMQ Pack
+
+-   Kafka Pack
+
+-   Elasticsearch Pack
+
+-   PostgresSql Pack
+
+-   ……
 
 ## FAQ
 
