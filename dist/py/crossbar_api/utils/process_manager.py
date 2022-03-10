@@ -165,9 +165,9 @@ class ProcessManager:
             print(cfg['cwd'])
             t = managerThread(name=cfg['full_name'], cmd=cfg['start'], cwd=cfg['cwd'], bind_cwd=True,
                               ready_pattern=cfg['ready_pattern'],  # 通过控制台输出判断服务就绪的正则表达式
-                              stop_cmd=cfg['stop'],
-                              watched_pattern=cfg['check_point_pattern'],
-                              envs=cfg['envs'],
+                              stop_cmd=cfg['stop'] if 'stop' in cfg else None,
+                              watched_pattern=cfg['check_point_pattern'] if 'check_point_pattern' in cfg else None,
+                              envs=cfg['envs'] if 'envs' in cfg else None,
                               mq_out=self.mq_out,
                               **kwargs
                               )

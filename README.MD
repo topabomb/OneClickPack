@@ -64,7 +64,7 @@ OneclickPack的初衷是开发一个便携版（绿色版）的一键软件包�
 
 ![日志查看器](media/e4d0acd1668a9ee7894f8bf581e6e3a5.png) ![服务管理器](media/a472388c0b1b4ee968638a3ad073ffa4.png) ![通过菜单管理服务](media/cccc64a8f7b4ad51eb9355f64e8bf49e.png)
 
-可直接下载体验集成了rabbitmq的演示版：<https://github.com/topabomb/OneClickPack/releases/tag/v0.0.1_preview>
+可直接下载体验集成了rabbitmq的演示版：https://github.com/topabomb/OneClickPack/releases/tag/v0.0.1_preview
 
 ## 目录结构
 
@@ -120,62 +120,68 @@ service.json 软件包配置说明
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ json
 {
-    "name": "rabbitmq-package",//软件包名称，需全局唯一
-    "description": "rabbitmq",//软件包描述
-    "version": "1.0.0",//当前版本
-    "autoruns": [//配置需要自启动的服务数组，引用服务名称参见components中的名称
+    "name": "rabbitmq-package", //软件包名称，需全局唯一
+    "description": "rabbitmq", //软件包描述
+    "version": "1.0.0", //当前版本
+    "autoruns": [
+        //配置需要自启动的服务数组，引用服务名称参见components中的名称
         "mqtt_webtoolkit"
     ],
-    "requires": null,//依赖其他的软件包数组，引用软件包名称参见对应的service.json中的配置
-    "urls": [//软件包需要展示的url数组
+    "requires": null, //依赖其他的软件包数组，引用软件包名称参见对应的service.json中的配置
+    "urls": [
+        //软件包需要展示的url数组
     ],
-    "kwargs":{
-        "fix_stop":"taskkill"
+    "kwargs": {
+        //附加参数
+        "fix_wmic": "C:\\Windows\\System32\\wbem", //windows 下 wmic额外处理，修复PATH中无法找到wmic
+        "fix_stop": "taskkill" //服务没有stop命令的情况下的停止处理，置为null使用terminate()退出进程，Windows下置为taskkill将使用taskkill中止进程
     },
     "components": [
+        //软件包包含的服务数组
         {
-            "name": "rabbitmq",
-            "requires": null,
-            "cwd": "./rabbitmq_server/",
-            "bind_cwd": true,
-            "start": "sbin\\rabbitmq-server.bat",
-            "stop": null,
-            "ready_pattern": "^.*Starting broker... completed .*",
-            "check_point_pattern": null,
-            "core_erl": true,
+            "name": "rabbitmq", //服务名称，软件包内唯一
+            "requires": null, //依赖本软件包中其他服务的数组，引用对应服务的名称
+            "cwd": "./rabbitmq_server/", //主目录，初始目录为软件包的根目录，即包含service.json的目录
+            "bind_cwd": true, //相关命令是否采用包含主目录的完整路径
+            "start": "sbin\\rabbitmq-server.bat", //启动命令
+            "stop": null, //停止命令
+            "ready_pattern": "^.*Starting broker... completed .*", //监控服务启动完成的正则表达式
+            "check_point_pattern": null, //检查点的正则表达式，某些服务停止时依赖其他服务的状态，在stop_wait_check_points配置监控的目标服务
+            "stop_wait_check_points": [], //在发出停止指令前需要监控的checkPoint，使用服务名数组
+            "core_erl": true, //初始化erlang环境
+            "core_java": false, //初始化java环境
             "envs": {
-                "RABBITMQ_MNESIA_BASE":"../../../datas/RabbitMQ/db",
-                "RABBITMQ_LOG_BASE":"../../../datas/RabbitMQ/log",
-                "RABBITMQ_ENABLED_PLUGINS_FILE":"../enabled_plugins",
-                "RABBITMQ_CONFIG_FILE":"../rabbitmq.conf",
-                "ERL_MAX_PORTS":"65535"
+                //该服务启动时的环境变量清单，本例中配置RabbitMQ的本地化配置
+                "RABBITMQ_MNESIA_BASE": "../../../datas/RabbitMQ/db",
+                "RABBITMQ_LOG_BASE": "../../../datas/RabbitMQ/log",
+                "RABBITMQ_ENABLED_PLUGINS_FILE": "../enabled_plugins",
+                "RABBITMQ_CONFIG_FILE": "../rabbitmq.conf",
+                "ERL_MAX_PORTS": "65535"
             },
             "urls": [
+                //该服务关联的url清单
                 {
-                    "title": "rabbitmq management",
+                    "title": "Web管理插件",
                     "url": "http://localhost:15672/"
                 }
             ],
-            "description": "rabbitmq；"
+            "description": "RabbitMQ是实现了高级消息队列协议（AMQP）的开源消息代理软件（亦称面向消息的中间件）。本服务开启了web_mqtt与management插件；" //服务描述
         },
         {
             "name": "mqtt_webtoolkit",
-            "requires": ["rabbitmq"],
+            "requires": [
+                "rabbitmq"
+            ],
             "cwd": "./web-toolkit/",
-            "bind_cwd": false,
             "start": "../../../c/python/python.exe -u -m http.server 18099 --directory ./",
-            "stop": null,
             "ready_pattern": "^.*Serving HTTP on.*",
-            "check_point_pattern": null,
-            "envs": {
-            },
             "urls": [
                 {
-                    "title": "mqtt web toolkit",
+                    "title": "MQTT Web客户端",
                     "url": "http://localhost:18099/"
                 }
             ],
-            "description": "mqtt web toolkit"
+            "description": "MQTT Web Toolkit 是 EMQ 最近开源的一款 MQTT (WebSocket) 测试工具。该工具采用了聊天界面形式，简化了页面操作逻辑，方便用户快速测试验证MQTT应用场景。"
         }
     ]
 }

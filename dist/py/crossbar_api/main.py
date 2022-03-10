@@ -1,7 +1,6 @@
 import os
 import sys
 import asyncio
-import ujson
 from os import environ
 from autobahn.asyncio.wamp import ApplicationRunner
 from autobahn.asyncio.component import run
@@ -39,7 +38,7 @@ if __name__ == '__main__':
         dir_serv = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), dir_serv))
     if not os.path.exists(dir_serv):
         dir_serv = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '../../s'))
-    print(dir_serv)
+    print('dir_serv:',dir_serv)
     runner = ApplicationRunner(url, realm)
     # 支持多模块的RPC注册，默认为当前目录下的rpc_sets
     session = get_session_class()(['rpc_sets'], serv_dir=dir_serv)  # serv_dir为**kwargs扩展参数会传递到rpc_sets类的实例化函数的**kwargs中

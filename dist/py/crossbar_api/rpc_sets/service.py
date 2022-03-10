@@ -2,7 +2,7 @@ import os
 import sys
 import asyncio
 import glob
-import json
+import json5
 from utils.crossbar import RpcBase, rpc_procedure
 from utils.logging import print
 from utils.process_manager import ProcessManager
@@ -89,7 +89,7 @@ class ServiceControl(RpcBase):
                 continue
             cfg = None
             with open(file, 'r', encoding='utf-8') as f:
-                cfg = json.load(f)
+                cfg = json5.load(f)
             cfg["cwd"]=os.path.abspath(os.path.join(self.serv_dir, './s/', os.path.dirname(file)))
             if 'name' in cfg and 'components' in cfg:
                 group_name = cfg['name']
